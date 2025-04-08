@@ -49,8 +49,17 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
-      prisma.user.create.mockResolvedValue(user);
+      jest
+        .spyOn(bcrypt, 'hash')
+        .mockImplementation(jest.fn(() => Promise.resolve('hashedPassword')));
+      jest.spyOn(prisma.user, 'create').mockResolvedValue({
+        id: '1',
+        email,
+        password: hashedPassword,
+        biometricKey: 'bio123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const result = await service.register(email, password);
       expect(bcrypt.hash).toHaveBeenCalledWith(password, 10);
@@ -75,9 +84,18 @@ describe('UserService', () => {
         updatedAt: new Date(),
       };
       const token = 'token';
-      prisma.user.findUnique.mockResolvedValue(user);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
-      jwt.sign.mockReturnValue(token);
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
+        id: '1',
+        email,
+        password: hashedPassword,
+        biometricKey: 'bio123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(jest.fn(() => Promise.resolve(true)));
+      jest.spyOn(jwt, 'sign').mockImplementation(jest.fn(() => token));
 
       const result = await service.login(email, password);
       expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email } });
@@ -95,7 +113,9 @@ describe('UserService', () => {
     });
 
     it('should throw an error if user not found', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(prisma.user, 'findUnique')
+        .mockImplementation(jest.fn(() => Promise.resolve(null)));
       await expect(
         service.login('test@example.com', 'password'),
       ).rejects.toThrow('User not found');
@@ -109,8 +129,12 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      prisma.user.findUnique.mockResolvedValue(user);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      jest
+        .spyOn(prisma.user, 'findUnique')
+        .mockImplementation(jest.fn(() => Promise.resolve(user)));
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(jest.fn(() => Promise.resolve(false)));
       await expect(
         service.login('test@example.com', 'password'),
       ).rejects.toThrow('Invalid password');
