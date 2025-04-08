@@ -20,14 +20,22 @@ A RESTful API service built with NestJS, TypeScript, Prisma, and GraphQL, suppor
    cd nest-js_task
    ```
 
-2. run install
-   npm install
-3. Copy env.example variable to .env ?? setup yours
-   cp .env.example .env
+2. Install
 
-   # Create test environment file
+# run install
 
-   cp .env.example .env.test
+npm install
+
+3. Copy env.example variable to .env
+   or, setup yours
+
+# copy
+
+cp .env.example .env
+
+# Create test environment file
+
+cp .env.example .env.test
 
 4. Set up the database:
 
@@ -39,7 +47,14 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-4. Run
-   npm run start:dev && Run test with "npm run test:e2e"
+4. Run Build and Test
 
-thanks
+# Build the application
+
+npm run build
+
+# test
+
+npm run start:dev && Run test with "npm run test:e2e"
+
+Thanks
